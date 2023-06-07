@@ -1,6 +1,9 @@
+///! This module handles CSV conversion of a list of passwords
+
 use serde::Serialize;
 use std::{error::Error, fs::File, path::PathBuf};
 
+/// CSV record structure, holding password-related data
 #[derive(Debug, Serialize)]
 struct Record {
     password: String,
@@ -14,6 +17,8 @@ struct Record {
     class: String,
 }
 
+/// Implementation of the Default trait for Record.
+/// Returns an empty row.
 impl Default for Record {
     fn default() -> Record {
         Record {
@@ -30,6 +35,7 @@ impl Default for Record {
     }
 }
 
+/// Write a password vector to a CSV-formtatted file
 pub fn write_csv(passwords: &Vec<String>, filename: &PathBuf) -> Result<(), Box<dyn Error>> {
     let file = File::create(filename)?;
     let mut wtr = csv::Writer::from_writer(file);

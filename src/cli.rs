@@ -1,8 +1,12 @@
+//! This module manages the CLI interface used to interact with
+//! the crate's binary.
+
 use clap::Parser;
 use std::error::Error;
 use std::path::PathBuf;
 use super::csv;
 
+/// Arguments passed to the CLI interface
 #[derive(Parser)]
 pub struct Args {
     /// Minimum password length

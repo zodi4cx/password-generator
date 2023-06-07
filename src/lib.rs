@@ -1,3 +1,6 @@
+//! The password-generator create allows for the generation of passwords following
+//! different complexity rules.
+
 use itertools::Itertools;
 use passwords::PasswordGenerator;
 
