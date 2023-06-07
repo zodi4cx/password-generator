@@ -1,8 +1,9 @@
 use clap::Parser;
 use itertools::Itertools;
 use passwords::PasswordGenerator;
-use serde::Serialize;
-use std::{error::Error, fs::File, path::PathBuf};
+use std::{error::Error, path::PathBuf};
+
+mod csv;
 
 #[derive(Parser)]
 pub struct Args {
@@ -40,7 +41,7 @@ pub fn run(config: Args) -> Result<(), Box<dyn Error>> {
     let passwords = generate_passwords(config.min_length, config.max_length, config.repetition);
     eprintln!("[*] Passwords generated: {}", passwords.len());
     if let Some(output_filename) = config.output {
-        write_csv(&passwords, &output_filename)?;
+        csv::write_csv(&passwords, &output_filename)?;
         println!(
             "[+] Output written to {}",
             output_filename.to_string_lossy()
@@ -81,47 +82,4 @@ pub fn generate_passwords(min_length: usize, max_length: usize, n_passwords: usi
         }
     }
     passwords
-}
-
-#[derive(Debug, Serialize)]
-struct Record {
-    password: String,
-    length: String,
-    num_chars: String,
-    num_digits: String,
-    num_upper: String,
-    num_lower: String,
-    num_special: String,
-    num_vowels: String,
-    class: String,
-}
-
-impl Default for Record {
-    fn default() -> Record {
-        Record {
-            password: String::from(""),
-            length: String::from(""),
-            num_chars: String::from(""),
-            num_digits: String::from(""),
-            num_upper: String::from(""),
-            num_lower: String::from(""),
-            num_special: String::from(""),
-            num_vowels: String::from(""),
-            class: String::from(""),
-        }
-    }
-}
-
-fn write_csv(passwords: &Vec<String>, filename: &PathBuf) -> Result<(), Box<dyn Error>> {
-    let file = File::create(filename)?;
-    let mut wtr = csv::Writer::from_writer(file);
-    passwords.iter().for_each(|password| {
-        wtr.serialize(Record {
-            password: String::from(password),
-            ..Default::default()
-        })
-        .unwrap();
-    });
-    wtr.flush()?;
-    Ok(())
 }
