@@ -1,5 +1,5 @@
+use passwords::analyzer;
 ///! This module handles CSV conversion of a list of passwords
-
 use serde::Serialize;
 use std::{error::Error, fs::File, path::PathBuf};
 
@@ -7,30 +7,38 @@ use std::{error::Error, fs::File, path::PathBuf};
 #[derive(Debug, Serialize)]
 struct Record {
     password: String,
-    length: String,
-    num_chars: String,
-    num_digits: String,
-    num_upper: String,
-    num_lower: String,
-    num_special: String,
-    num_vowels: String,
+    length: usize,
+    num_chars: usize,
+    num_digits: usize,
+    num_upper: usize,
+    num_lower: usize,
+    num_special: usize,
+    num_vowels: usize,
     class: String,
 }
 
-/// Implementation of the Default trait for Record.
-/// Returns an empty row.
-impl Default for Record {
-    fn default() -> Record {
+impl Record {
+    fn new(password: &str) -> Record {
+        let vowels = ['a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U'];
+        let analyzed = analyzer::analyze(password);
+        let vowels_count = password.chars().fold(0, |acc, char| {
+                if vowels.contains(&char) {
+                    acc + 1
+                } else {
+                    acc
+                }
+            },
+        );
         Record {
-            password: String::from(""),
-            length: String::from(""),
-            num_chars: String::from(""),
-            num_digits: String::from(""),
-            num_upper: String::from(""),
-            num_lower: String::from(""),
-            num_special: String::from(""),
-            num_vowels: String::from(""),
-            class: String::from(""),
+            password: String::from(password),
+            length: analyzed.length(),
+            num_chars: analyzed.lowercase_letters_count() + analyzed.uppercase_letters_count(),
+            num_digits: analyzed.numbers_count(),
+            num_upper: analyzed.uppercase_letters_count(),
+            num_lower: analyzed.lowercase_letters_count(),
+            num_special: analyzed.symbols_count(),
+            num_vowels: vowels_count,
+            class: String::new(),
         }
     }
 }
@@ -40,11 +48,7 @@ pub fn write_csv(passwords: &Vec<String>, filename: &PathBuf) -> Result<(), Box<
     let file = File::create(filename)?;
     let mut wtr = csv::Writer::from_writer(file);
     passwords.iter().for_each(|password| {
-        wtr.serialize(Record {
-            password: String::from(password),
-            ..Default::default()
-        })
-        .unwrap();
+        wtr.serialize(Record::new(&password)).unwrap();
     });
     wtr.flush()?;
     Ok(())
