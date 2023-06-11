@@ -19,16 +19,11 @@ struct Record {
 
 impl Record {
     fn new(password: &str) -> Record {
-        let vowels = ['a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U'];
         let analyzed = analyzer::analyze(password);
-        let vowels_count = password.chars().fold(0, |acc, char| {
-                if vowels.contains(&char) {
-                    acc + 1
-                } else {
-                    acc
-                }
-            },
-        );
+        let vowels_count = password
+            .chars()
+            .filter(|c| "aeiouAEIOU".contains(*c))
+            .count();
         Record {
             password: String::from(password),
             length: analyzed.length(),
