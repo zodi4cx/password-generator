@@ -1,4 +1,4 @@
-use passwords::analyzer;
+use passwords::{analyzer, scorer};
 ///! This module handles CSV conversion of a list of passwords
 use serde::Serialize;
 use std::{error::Error, fs::File, path::PathBuf};
@@ -14,6 +14,7 @@ struct Record {
     num_lower: usize,
     num_special: usize,
     num_vowels: usize,
+    score: usize,
     class: String,
 }
 
@@ -33,6 +34,7 @@ impl Record {
             num_lower: analyzed.lowercase_letters_count(),
             num_special: analyzed.symbols_count(),
             num_vowels: vowels_count,
+            score: scorer::score(&analyzed) as usize,
             class: String::new(),
         }
     }
