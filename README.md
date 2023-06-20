@@ -1,4 +1,8 @@
-# password-generator
+# Dataset generation tool
+
+This tool was developed for the on-going study **"Password Strength Analysis through Supervised Quantum Machine Learning"**
+
+# Build
 
 If you don't have `rustup` already install in your system, check the [Installation instructions](https://doc.rust-lang.org/book/ch01-01-installation.html) provided in the The Rust Book.
 

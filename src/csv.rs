@@ -21,10 +21,11 @@ struct Record {
 impl Record {
     fn new(password: &str) -> Record {
         let analyzed = analyzer::analyze(password);
-        let vowels_count = password
+        let num_vowels = password
             .chars()
             .filter(|c| "aeiouAEIOU".contains(*c))
             .count();
+        let score = scorer::score(&analyzed) as usize;
         Record {
             password: String::from(password),
             length: analyzed.length(),
@@ -33,9 +34,17 @@ impl Record {
             num_upper: analyzed.uppercase_letters_count(),
             num_lower: analyzed.lowercase_letters_count(),
             num_special: analyzed.symbols_count(),
-            num_vowels: vowels_count,
-            score: scorer::score(&analyzed) as usize,
-            class: String::new(),
+            num_vowels,
+            score,
+            class: String::from(match score {
+                0..=19 => "Very dangerous",
+                20..=39 => "Dangerous",
+                40..=59 => "Very weak",
+                60..=79 => "Weak",
+                80..=89 => "Good",
+                90..=100 => "Strong",
+                _ => panic!("Invalid password score: {score}"),
+            }),
         }
     }
 }
